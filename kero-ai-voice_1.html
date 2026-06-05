@@ -1,0 +1,1370 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kero AI Voice — AI Arabic Voice Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --glass-bg: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.12);
+    --glass-border-strong: rgba(255,255,255,0.22);
+    --neon-cyan: #00e5ff;
+    --neon-violet: #a259ff;
+    --neon-rose: #ff4d8d;
+    --text-primary: #f0eeff;
+    --text-secondary: rgba(240,238,255,0.6);
+    --text-muted: rgba(240,238,255,0.35);
+    --accent-gradient: linear-gradient(135deg, #00e5ff 0%, #a259ff 50%, #ff4d8d 100%);
+    --bg-deep: #060412;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── BG ORBS ── */
+  .bg-canvas {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  }
+  .orb {
+    position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.18;
+    animation: orb-drift 20s ease-in-out infinite alternate;
+  }
+  .orb-1 { width: 700px; height: 700px; background: #a259ff; top: -200px; left: -150px; animation-duration: 22s; }
+  .orb-2 { width: 500px; height: 500px; background: #00e5ff; top: 30%; right: -100px; animation-duration: 18s; animation-delay: -5s; }
+  .orb-3 { width: 600px; height: 600px; background: #ff4d8d; bottom: -150px; left: 20%; animation-duration: 25s; animation-delay: -10s; }
+  .orb-4 { width: 400px; height: 400px; background: #a259ff; bottom: 10%; right: 10%; animation-duration: 19s; animation-delay: -3s; }
+
+  @keyframes orb-drift {
+    0% { transform: translate(0,0) scale(1); }
+    100% { transform: translate(40px,60px) scale(1.08); }
+  }
+
+  /* ── NOISE TEXTURE ── */
+  .noise {
+    position: fixed; inset: 0; z-index: 1; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.5;
+  }
+
+  main { position: relative; z-index: 2; }
+
+  /* ── GLASS CARD ── */
+  .glass {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+  }
+  .glass-strong {
+    background: rgba(255,255,255,0.09);
+    border: 1px solid var(--glass-border-strong);
+    backdrop-filter: blur(32px) saturate(200%);
+    -webkit-backdrop-filter: blur(32px) saturate(200%);
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 2.5rem;
+    background: rgba(6,4,18,0.5);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+    transition: background 0.3s;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem;
+    text-decoration: none; color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+  .logo-icon {
+    width: 32px; height: 32px;
+    background: var(--accent-gradient);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .logo-icon svg { width: 20px; height: 20px; }
+  .logo-dot { color: #a259ff; }
+  .nav-links {
+    display: flex; align-items: center; gap: 2rem;
+    list-style: none;
+  }
+  .nav-links a {
+    color: var(--text-secondary); text-decoration: none;
+    font-size: 0.9rem; transition: color 0.2s;
+    font-weight: 400;
+  }
+  .nav-links a:hover { color: var(--text-primary); }
+  .nav-cta {
+    padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.875rem; font-weight: 500;
+    cursor: pointer; border: none; transition: all 0.2s;
+    background: var(--accent-gradient); color: #fff;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .nav-cta:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  /* ── SECTION WRAPPER ── */
+  section { padding: 6rem 2.5rem; max-width: 1200px; margin: 0 auto; }
+
+  /* ────────────────────────────────────────────
+     SECTION 1 — HERO
+  ──────────────────────────────────────────── */
+  .hero { padding-top: 10rem; text-align: center; position: relative; }
+
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 0.4rem 1rem; border-radius: 100px; font-size: 0.8rem;
+    background: rgba(162,89,255,0.15); border: 1px solid rgba(162,89,255,0.35);
+    color: #c49fff; margin-bottom: 2rem;
+    animation: fade-in-up 0.8s ease both;
+  }
+  .badge-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #a259ff; box-shadow: 0 0 8px #a259ff;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  .hero-headline {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 800; line-height: 1.0;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    animation: fade-in-up 0.8s 0.1s ease both;
+  }
+  .headline-gradient {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .hero-sub {
+    font-size: 1.15rem; color: var(--text-secondary); max-width: 580px;
+    margin: 0 auto 2.5rem; line-height: 1.7; font-weight: 300;
+    animation: fade-in-up 0.8s 0.2s ease both;
+  }
+  .hero-btns {
+    display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;
+    animation: fade-in-up 0.8s 0.3s ease both;
+  }
+  .btn-primary {
+    padding: 0.9rem 2.2rem; border-radius: 12px; font-size: 1rem; font-weight: 500;
+    background: var(--accent-gradient); color: #fff; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: all 0.25s;
+    box-shadow: 0 0 40px rgba(162,89,255,0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 60px rgba(162,89,255,0.45); }
+  .btn-ghost {
+    padding: 0.9rem 2.2rem; border-radius: 12px; font-size: 1rem; font-weight: 500;
+    background: var(--glass-bg); border: 1px solid var(--glass-border-strong);
+    color: var(--text-primary); cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all 0.25s; backdrop-filter: blur(12px);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
+
+  /* ── WAVEFORM ANIMATION ── */
+  .waveform-container {
+    margin: 4rem auto 0; max-width: 700px; height: 120px;
+    display: flex; align-items: center; justify-content: center; gap: 3px;
+    animation: fade-in-up 0.8s 0.4s ease both;
+  }
+  .wave-bar {
+    width: 4px; border-radius: 2px;
+    background: var(--accent-gradient);
+    animation: wave-anim var(--dur, 1.2s) ease-in-out infinite alternate;
+    animation-delay: var(--delay, 0s);
+    opacity: 0.7;
+  }
+  @keyframes wave-anim {
+    0% { height: 6px; opacity: 0.3; }
+    100% { height: var(--h, 40px); opacity: 0.9; }
+  }
+
+  /* ── STATS ROW ── */
+  .stats-row {
+    display: flex; justify-content: center; gap: 3rem; flex-wrap: wrap;
+    margin-top: 4rem; padding-top: 3rem;
+    border-top: 1px solid var(--glass-border);
+    animation: fade-in-up 0.8s 0.5s ease both;
+  }
+  .stat-item { text-align: center; }
+  .stat-val {
+    font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 700;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .stat-lbl { font-size: 0.82rem; color: var(--text-muted); margin-top: 2px; }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(28px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ────────────────────────────────────────────
+     SECTION 2 — DASHBOARD
+  ──────────────────────────────────────────── */
+  .section-label {
+    display: inline-block; font-size: 0.75rem; font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--neon-cyan);
+    margin-bottom: 1rem;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif; font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+    font-weight: 700; line-height: 1.15; letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+  .section-sub { color: var(--text-secondary); font-size: 1rem; max-width: 480px; line-height: 1.7; font-weight: 300; }
+
+  .dashboard-wrapper {
+    margin-top: 3rem;
+    border-radius: 24px;
+    padding: 2px;
+    background: linear-gradient(135deg, rgba(0,229,255,0.3), rgba(162,89,255,0.3), rgba(255,77,141,0.2));
+  }
+  .dashboard-inner {
+    border-radius: 22px; overflow: hidden;
+  }
+
+  /* TABS */
+  .tab-bar {
+    display: flex; background: rgba(6,4,18,0.7); border-bottom: 1px solid var(--glass-border);
+    padding: 0 1.5rem;
+    backdrop-filter: blur(20px);
+  }
+  .tab-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 1rem 1.5rem; background: none; border: none;
+    color: var(--text-muted); cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; font-weight: 400; transition: all 0.2s;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--text-secondary); }
+  .tab-btn.active { color: var(--text-primary); border-bottom-color: #a259ff; }
+  .tab-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+  .tab-panel { display: none; padding: 2rem; background: rgba(6,4,18,0.55); backdrop-filter: blur(24px); }
+  .tab-panel.active { display: block; }
+
+  /* VOICE MODULATION TAB */
+  .tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 700px) { .tool-grid { grid-template-columns: 1fr; } }
+
+  .glass-card {
+    background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+    border-radius: 16px; padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+  .glass-card:hover { border-color: rgba(162,89,255,0.35); }
+
+  .card-label {
+    font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-muted); margin-bottom: 0.75rem; font-weight: 500;
+  }
+
+  .upload-zone {
+    border: 1.5px dashed rgba(162,89,255,0.35); border-radius: 12px;
+    padding: 2rem; text-align: center; cursor: pointer;
+    transition: all 0.2s; background: rgba(162,89,255,0.04);
+  }
+  .upload-zone:hover { border-color: rgba(162,89,255,0.6); background: rgba(162,89,255,0.08); }
+  .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .upload-zone p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+  .upload-zone strong { color: var(--neon-violet); font-weight: 500; }
+
+  /* MIC BTN */
+  .mic-row { display: flex; gap: 0.75rem; margin-top: 1rem; }
+  .btn-mic {
+    flex: 1; padding: 0.65rem; border-radius: 10px;
+    background: rgba(255,77,141,0.12); border: 1px solid rgba(255,77,141,0.3);
+    color: #ff4d8d; font-size: 0.85rem; font-weight: 500; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .btn-mic:hover { background: rgba(255,77,141,0.2); }
+  .btn-mic.recording { animation: mic-pulse 1s ease-in-out infinite; }
+  @keyframes mic-pulse { 0%,100%{box-shadow:0 0 0 rgba(255,77,141,0.4)}50%{box-shadow:0 0 16px rgba(255,77,141,0.5)} }
+
+  /* SELECT */
+  .glass-select {
+    width: 100%; padding: 0.65rem 1rem; border-radius: 10px;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border);
+    color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    appearance: none; cursor: pointer; outline: none; transition: border-color 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23a259ff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 1rem center;
+  }
+  .glass-select:focus { border-color: rgba(162,89,255,0.5); }
+  .glass-select option { background: #0d0920; }
+
+  /* VOICE PROFILE PILLS */
+  .voice-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+  .voice-pill {
+    padding: 0.4rem 0.9rem; border-radius: 100px; font-size: 0.8rem;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border);
+    color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+    font-weight: 400;
+  }
+  .voice-pill:hover { border-color: rgba(162,89,255,0.4); color: var(--text-primary); }
+  .voice-pill.selected {
+    background: rgba(162,89,255,0.18); border-color: rgba(162,89,255,0.5);
+    color: #c49fff;
+  }
+
+  /* TOGGLE */
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 1rem; padding: 0.75rem 1rem;
+    background: rgba(0,229,255,0.05); border: 1px solid rgba(0,229,255,0.15);
+    border-radius: 10px;
+  }
+  .toggle-info { }
+  .toggle-info strong { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); display: block; }
+  .toggle-info span { font-size: 0.78rem; color: var(--text-muted); }
+  .toggle-switch {
+    position: relative; width: 44px; height: 24px; flex-shrink: 0;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+  .toggle-track {
+    position: absolute; inset: 0; border-radius: 12px;
+    background: rgba(255,255,255,0.1); cursor: pointer; transition: background 0.3s;
+  }
+  .toggle-track::after {
+    content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; top: 3px; left: 3px; transition: transform 0.3s;
+  }
+  .toggle-switch input:checked + .toggle-track {
+    background: linear-gradient(135deg, #00e5ff, #a259ff);
+  }
+  .toggle-switch input:checked + .toggle-track::after { transform: translateX(20px); }
+
+  /* PROCESS BTN */
+  .process-btn {
+    width: 100%; margin-top: 1.5rem; padding: 0.9rem; border-radius: 12px;
+    background: var(--accent-gradient); border: none; color: #fff;
+    font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; letter-spacing: 0.01em;
+    box-shadow: 0 0 30px rgba(162,89,255,0.25);
+  }
+  .process-btn:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(162,89,255,0.4); }
+
+  /* PROGRESS BAR */
+  .progress-section { margin-top: 1.5rem; display: none; }
+  .progress-section.visible { display: block; }
+  .progress-label {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;
+  }
+  .progress-track {
+    height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; border-radius: 3px;
+    background: var(--accent-gradient);
+    width: 0%; transition: width 0.1s linear;
+    box-shadow: 0 0 12px rgba(0,229,255,0.5);
+  }
+  .processing-steps {
+    display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap;
+  }
+  .step-chip {
+    display: flex; align-items: center; gap: 6px; font-size: 0.78rem;
+    padding: 0.3rem 0.7rem; border-radius: 100px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border);
+    color: var(--text-muted); transition: all 0.3s;
+  }
+  .step-chip.done {
+    background: rgba(0,229,255,0.1); border-color: rgba(0,229,255,0.3); color: var(--neon-cyan);
+  }
+  .step-chip.active {
+    background: rgba(162,89,255,0.1); border-color: rgba(162,89,255,0.35); color: #c49fff;
+  }
+  .step-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* TTS TAB */
+  .glass-textarea {
+    width: 100%; min-height: 130px; padding: 1rem;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+    border-radius: 12px; color: var(--text-primary); font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem; resize: vertical; outline: none; line-height: 1.6;
+    transition: border-color 0.2s; font-weight: 300;
+  }
+  .glass-textarea::placeholder { color: var(--text-muted); }
+  .glass-textarea:focus { border-color: rgba(0,229,255,0.35); }
+
+  .dialect-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-top: 0.75rem; }
+  @media (max-width: 500px) { .dialect-grid { grid-template-columns: repeat(2,1fr); } }
+  .dialect-btn {
+    padding: 0.55rem 0.5rem; border-radius: 10px; border: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.04); color: var(--text-secondary);
+    font-size: 0.82rem; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s; text-align: center;
+  }
+  .dialect-btn:hover { border-color: rgba(0,229,255,0.3); color: var(--neon-cyan); }
+  .dialect-btn.selected {
+    background: rgba(0,229,255,0.1); border-color: rgba(0,229,255,0.4); color: var(--neon-cyan);
+  }
+
+  .speed-row {
+    display: flex; align-items: center; gap: 1rem; margin-top: 1rem;
+    padding: 0.75rem 1rem; background: rgba(255,255,255,0.03); border-radius: 10px;
+    border: 1px solid var(--glass-border);
+  }
+  .speed-row label { font-size: 0.82rem; color: var(--text-muted); white-space: nowrap; }
+  .glass-range {
+    flex: 1; accent-color: #a259ff; cursor: pointer;
+  }
+  .speed-val { font-size: 0.85rem; color: var(--neon-violet); font-weight: 500; min-width: 35px; }
+
+  /* AUDIO PLAYER */
+  .audio-result {
+    display: none; margin-top: 1rem;
+    background: rgba(162,89,255,0.08); border: 1px solid rgba(162,89,255,0.25);
+    border-radius: 14px; padding: 1rem 1.25rem;
+  }
+  .audio-result.visible { display: block; }
+  .audio-result-label {
+    font-size: 0.75rem; color: var(--neon-violet); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 0.75rem; font-weight: 500;
+  }
+  .waveform-player {
+    display: flex; align-items: center; gap: 6px; height: 44px;
+  }
+  .waveform-mini-bar {
+    flex: 1; background: rgba(162,89,255,0.25); border-radius: 2px;
+    transition: background 0.2s;
+  }
+  .waveform-mini-bar.played { background: rgba(162,89,255,0.75); }
+  .player-controls { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.75rem; }
+  .play-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--accent-gradient); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s;
+  }
+  .play-btn:hover { transform: scale(1.08); }
+  .play-btn svg { width: 14px; height: 14px; fill: #fff; margin-left: 2px; }
+  .time-label { font-size: 0.78rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .download-btn {
+    margin-left: auto; padding: 0.4rem 0.9rem; border-radius: 8px; font-size: 0.8rem;
+    background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border);
+    color: var(--text-secondary); cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .download-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+
+  /* ENHANCE TAB */
+  .enhance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 700px) { .enhance-grid { grid-template-columns: 1fr; } }
+
+  .noise-meter { margin-top: 1rem; }
+  .noise-label-row { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+  .noise-track { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.08); overflow: hidden; }
+  .noise-fill {
+    height: 100%; border-radius: 4px; transition: width 1s ease;
+    background: linear-gradient(90deg, #00e5ff, #ff4d8d);
+  }
+
+  .quality-score {
+    display: flex; align-items: center; gap: 1rem; margin-top: 1rem;
+    padding: 1rem; background: rgba(0,229,255,0.05); border: 1px solid rgba(0,229,255,0.15);
+    border-radius: 12px;
+  }
+  .score-ring {
+    width: 60px; height: 60px; border-radius: 50%; flex-shrink: 0;
+    background: conic-gradient(#00e5ff 0% var(--pct, 85%), rgba(255,255,255,0.08) var(--pct,85%) 100%);
+    display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  .score-ring::after {
+    content: ''; position: absolute; inset: 6px; border-radius: 50%; background: #0a0618;
+  }
+  .score-val {
+    position: relative; z-index: 1; font-family: 'Syne', sans-serif;
+    font-size: 0.85rem; font-weight: 700; color: var(--neon-cyan);
+  }
+  .score-info strong { font-size: 0.95rem; display: block; margin-bottom: 2px; }
+  .score-info span { font-size: 0.8rem; color: var(--text-muted); }
+
+  /* ────────────────────────────────────────────
+     SECTION 3 — FEATURES
+  ──────────────────────────────────────────── */
+  .features-header { max-width: 560px; margin-bottom: 3rem; }
+  .features-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;
+  }
+  .feature-card {
+    border-radius: 20px; padding: 2rem;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(16px); transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .feature-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: var(--card-accent-line, linear-gradient(90deg, transparent, rgba(162,89,255,0.5), transparent));
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .feature-card:hover { transform: translateY(-4px); border-color: rgba(162,89,255,0.3); }
+  .feature-card:hover::before { opacity: 1; }
+
+  .feature-icon-wrap {
+    width: 52px; height: 52px; border-radius: 14px; margin-bottom: 1.25rem;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--icon-bg, rgba(162,89,255,0.15));
+    border: 1px solid var(--icon-border, rgba(162,89,255,0.25));
+    font-size: 1.5rem;
+  }
+  .feature-card h3 {
+    font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700;
+    letter-spacing: -0.01em; margin-bottom: 0.6rem;
+  }
+  .feature-card p { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.6; font-weight: 300; }
+
+  .feature-tag {
+    display: inline-block; margin-top: 1.25rem; padding: 0.3rem 0.75rem;
+    border-radius: 100px; font-size: 0.75rem; font-weight: 500;
+    background: var(--tag-bg, rgba(162,89,255,0.12));
+    border: 1px solid var(--tag-border, rgba(162,89,255,0.25));
+    color: var(--tag-color, #c49fff);
+  }
+
+  /* ────────────────────────────────────────────
+     SECTION 4 — CONTACT & FOOTER
+  ──────────────────────────────────────────── */
+  .footer-section { padding-bottom: 4rem; }
+  .footer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start; }
+  @media (max-width: 700px) { .footer-grid { grid-template-columns: 1fr; } }
+
+  .contact-form-card {
+    border-radius: 20px; padding: 2rem;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(20px);
+  }
+  .form-row { margin-bottom: 1rem; }
+  .form-row label { font-size: 0.8rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem; font-weight: 400; }
+  .glass-input {
+    width: 100%; padding: 0.7rem 1rem; border-radius: 10px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+    color: var(--text-primary); font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+    outline: none; transition: border-color 0.2s;
+  }
+  .glass-input:focus { border-color: rgba(162,89,255,0.4); }
+  .glass-input::placeholder { color: var(--text-muted); }
+
+  .footer-info { }
+  .footer-logo {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;
+    font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 800; letter-spacing: -0.02em;
+  }
+  .footer-desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; font-weight: 300; max-width: 360px; }
+  .social-links { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+  .social-btn {
+    width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+    color: var(--text-secondary); text-decoration: none; font-size: 1rem;
+    transition: all 0.2s;
+  }
+  .social-btn:hover { background: rgba(162,89,255,0.15); border-color: rgba(162,89,255,0.3); color: #c49fff; }
+
+  .footer-bottom {
+    max-width: 1200px; margin: 3rem auto 0; padding: 1.5rem 2.5rem 0;
+    border-top: 1px solid var(--glass-border);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-bottom p { font-size: 0.82rem; color: var(--text-muted); }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { font-size: 0.82rem; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text-secondary); }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(6,4,18,0.8); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center; padding: 1rem;
+  }
+  .modal-overlay.open { display: flex; animation: modal-in 0.25s ease both; }
+  @keyframes modal-in { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  .modal-box {
+    width: 100%; max-width: 420px; border-radius: 24px; padding: 2.5rem;
+    background: rgba(14,10,35,0.95); border: 1px solid var(--glass-border-strong);
+    backdrop-filter: blur(40px); position: relative;
+  }
+  .modal-close {
+    position: absolute; top: 1rem; right: 1rem; background: rgba(255,255,255,0.07);
+    border: 1px solid var(--glass-border); border-radius: 8px; width: 32px; height: 32px;
+    cursor: pointer; color: var(--text-muted); font-size: 1rem; display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { background: rgba(255,255,255,0.12); color: var(--text-primary); }
+  .modal-title {
+    font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.3rem;
+  }
+  .modal-sub { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.75rem; }
+  .google-btn {
+    width: 100%; padding: 0.8rem; border-radius: 12px; border: 1px solid var(--glass-border-strong);
+    background: rgba(255,255,255,0.06); color: var(--text-primary); cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 500;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all 0.2s; margin-bottom: 1.25rem;
+  }
+  .google-btn:hover { background: rgba(255,255,255,0.1); }
+  .divider-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; }
+  .divider-line { flex: 1; height: 1px; background: var(--glass-border); }
+  .divider-text { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+  .modal-tabs { display: flex; gap: 0; margin-bottom: 1.25rem; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 3px; }
+  .modal-tab {
+    flex: 1; padding: 0.5rem; border-radius: 8px; border: none; background: none;
+    color: var(--text-muted); cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem; transition: all 0.2s;
+  }
+  .modal-tab.active { background: rgba(162,89,255,0.2); color: #c49fff; }
+  .modal-submit {
+    width: 100%; margin-top: 1rem; padding: 0.8rem; border-radius: 12px;
+    background: var(--accent-gradient); border: none; color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .modal-submit:hover { opacity: 0.88; }
+
+  /* SCROLL REVEAL */
+  .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+  .reveal-2 { transition-delay: 0.1s; }
+  .reveal-3 { transition-delay: 0.2s; }
+  .reveal-4 { transition-delay: 0.3s; }
+
+  /* GLOW PULSE on active tab */
+  .glow-ring { box-shadow: 0 0 40px rgba(0,229,255,0.08); }
+
+</style>
+</head>
+<body>
+
+<!-- BG ATMOSPHERE -->
+<div class="bg-canvas" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="orb orb-4"></div>
+</div>
+<div class="noise" aria-hidden="true"></div>
+
+<!-- ── NAV ── -->
+<nav role="navigation" aria-label="Main navigation">
+  <a class="logo" href="#">
+    <div class="logo-icon" aria-hidden="true">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="7" width="2" height="6" rx="1" fill="white" opacity="0.9"/>
+        <rect x="6" y="4" width="2" height="12" rx="1" fill="white" opacity="0.9"/>
+        <rect x="10" y="2" width="2" height="16" rx="1" fill="white" opacity="0.9"/>
+        <rect x="14" y="5" width="2" height="10" rx="1" fill="white" opacity="0.9"/>
+        <rect x="18" y="8" width="2" height="4" rx="1" fill="white" opacity="0.9"/>
+      </svg>
+    </div>
+    Kero <span class="logo-dot">AI Voice</span>
+  </a>
+  <ul class="nav-links" role="list">
+    <li><a href="#dashboard">Studio</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <button class="nav-cta" onclick="openModal()" aria-label="Open login or sign up modal">Get Started Free</button>
+</nav>
+
+<main>
+
+<!-- ════════════════════════════════════════════
+     SECTION 1 — HERO
+═════════════════════════════════════════════ -->
+<section class="hero" id="hero" aria-labelledby="hero-headline">
+  <div class="hero-badge" role="status">
+    <div class="badge-dot" aria-hidden="true"></div>
+    Powered by Advanced Arabic AI Models
+  </div>
+  <h1 class="hero-headline" id="hero-headline">
+    Your Voice,<br>
+    <span class="headline-gradient">Reimagined in Arabic</span>
+  </h1>
+  <p class="hero-sub">Transform any audio into broadcast-quality Arabic voices. Clone tones, synthesize speech, and eliminate noise — all in seconds.</p>
+  <div class="hero-btns">
+    <button class="btn-primary" onclick="openModal()" aria-label="Create a free account">Start Creating Free</button>
+    <button class="btn-ghost" onclick="document.getElementById('dashboard').scrollIntoView({behavior:'smooth'})" aria-label="See the live demo">Live Demo ↓</button>
+  </div>
+
+  <!-- ANIMATED WAVEFORM -->
+  <div class="waveform-container" aria-hidden="true" id="hero-wave"></div>
+
+  <div class="stats-row" role="list">
+    <div class="stat-item" role="listitem"><div class="stat-val">14+</div><div class="stat-lbl">Arabic Dialects</div></div>
+    <div class="stat-item" role="listitem"><div class="stat-val">2s</div><div class="stat-lbl">Avg. Processing Time</div></div>
+    <div class="stat-item" role="listitem"><div class="stat-val">48kHz</div><div class="stat-lbl">Studio Quality Output</div></div>
+    <div class="stat-item" role="listitem"><div class="stat-val">100%</div><div class="stat-lbl">Free to Use</div></div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SECTION 2 — AI DASHBOARD
+═════════════════════════════════════════════ -->
+<section id="dashboard" aria-labelledby="dashboard-title">
+  <div class="reveal">
+    <span class="section-label">AI Studio</span>
+    <h2 class="section-title" id="dashboard-title">The Complete Arabic<br>Voice Suite</h2>
+    <p class="section-sub">Three powerful tools unified in one seamless glass interface.</p>
+  </div>
+
+  <div class="dashboard-wrapper reveal glow-ring" style="margin-top:2.5rem">
+    <div class="dashboard-inner glass">
+
+      <!-- TAB BAR -->
+      <div class="tab-bar" role="tablist" aria-label="AI tools">
+        <button class="tab-btn active" role="tab" aria-selected="true" aria-controls="tab-voice" onclick="switchTab('voice', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2a3 3 0 013 3v7a3 3 0 01-6 0V5a3 3 0 013-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v3M8 22h8"/></svg>
+          Voice Modulation
+        </button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-tts" onclick="switchTab('tts', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M9 12h6M9 8h4M17 2H7a2 2 0 00-2 2v16l4-4h8a2 2 0 002-2V4a2 2 0 00-2-2z"/></svg>
+          Text-to-Speech
+        </button>
+        <button class="tab-btn" role="tab" aria-selected="false" aria-controls="tab-enhance" onclick="switchTab('enhance', this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 18v-6a9 9 0 0118 0v6M3 18a2 2 0 002 2h2a2 2 0 002-2v-3a2 2 0 00-2-2H5a2 2 0 00-2 2v3zM21 18a2 2 0 01-2 2h-2a2 2 0 01-2-2v-3a2 2 0 012-2h2a2 2 0 012 2v3z"/></svg>
+          Audio Enhancement
+        </button>
+      </div>
+
+      <!-- ── TAB 1: VOICE MODULATION ── -->
+      <div class="tab-panel active" id="tab-voice" role="tabpanel">
+        <div class="tool-grid">
+
+          <!-- Left: Upload -->
+          <div>
+            <p class="card-label">Audio Source</p>
+            <div class="upload-zone" onclick="simulateUpload()" role="button" tabindex="0" aria-label="Upload audio file">
+              <div class="upload-icon" aria-hidden="true">🎵</div>
+              <p><strong>Click to upload</strong> or drag & drop<br><span style="font-size:0.78rem">MP3, WAV, M4A · Max 50MB</span></p>
+            </div>
+            <div class="mic-row">
+              <button class="btn-mic" id="mic-btn" onclick="toggleMic()" aria-label="Record with microphone">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2a3 3 0 013 3v7a3 3 0 01-6 0V5a3 3 0 013-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v3"/></svg>
+                <span id="mic-label">Record with Mic</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Voice Config -->
+          <div>
+            <p class="card-label">Voice Profile</p>
+            <div class="voice-pills" role="group" aria-label="Select voice type">
+              <button class="voice-pill selected" onclick="selectPill(this)" aria-pressed="true">📡 Broadcast</button>
+              <button class="voice-pill" onclick="selectPill(this)" aria-pressed="false">🔵 Deep Male</button>
+              <button class="voice-pill" onclick="selectPill(this)" aria-pressed="false">🌸 Female</button>
+              <button class="voice-pill" onclick="selectPill(this)" aria-pressed="false">⚡ Youthful</button>
+              <button class="voice-pill" onclick="selectPill(this)" aria-pressed="false">🎙 Narrator</button>
+              <button class="voice-pill" onclick="selectPill(this)" aria-pressed="false">👴 Elder</button>
+            </div>
+
+            <p class="card-label" style="margin-top:1rem">Regional Tone</p>
+            <select class="glass-select" aria-label="Select regional accent">
+              <option>Modern Standard Arabic (MSA)</option>
+              <option>Egyptian — القاهرة</option>
+              <option>Gulf — الخليج</option>
+              <option>Levantine — الشام</option>
+              <option>Moroccan — المغرب</option>
+              <option>Iraqi — بغداد</option>
+            </select>
+
+            <div class="toggle-row">
+              <div class="toggle-info">
+                <strong>Smart Noise Cancellation</strong>
+                <span>AI-powered background removal</span>
+              </div>
+              <label class="toggle-switch" aria-label="Enable smart noise cancellation">
+                <input type="checkbox" checked onchange="toggleNoise(this)">
+                <span class="toggle-track" aria-hidden="true"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <button class="process-btn" onclick="runProcess('voice')">
+          ✦ Process with AI Voice Engine
+        </button>
+
+        <div class="progress-section" id="voice-progress" aria-live="polite">
+          <div class="progress-label"><span id="voice-progress-label">Analyzing audio...</span><span id="voice-pct">0%</span></div>
+          <div class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="voice-bar-wrap">
+            <div class="progress-fill" id="voice-bar"></div>
+          </div>
+          <div class="processing-steps">
+            <div class="step-chip" id="s-denoise"><span class="step-dot" aria-hidden="true"></span>Noise removal</div>
+            <div class="step-chip" id="s-clone"><span class="step-dot" aria-hidden="true"></span>Voice cloning</div>
+            <div class="step-chip" id="s-render"><span class="step-dot" aria-hidden="true"></span>Rendering</div>
+            <div class="step-chip" id="s-export"><span class="step-dot" aria-hidden="true"></span>Exporting</div>
+          </div>
+        </div>
+
+        <div class="audio-result" id="voice-result" aria-label="Processed audio result">
+          <div class="audio-result-label">Output · Broadcast Arabic</div>
+          <div class="waveform-player" id="v-waveform" aria-hidden="true"></div>
+          <div class="player-controls">
+            <button class="play-btn" onclick="togglePlay('v')" aria-label="Play processed audio">
+              <svg id="v-play-icon" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>
+            </button>
+            <span class="time-label" id="v-time">0:00 / 0:42</span>
+            <button class="download-btn" aria-label="Download processed audio">↓ Download WAV</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB 2: TEXT-TO-SPEECH ── -->
+      <div class="tab-panel" id="tab-tts" role="tabpanel">
+        <div class="tool-grid">
+          <div>
+            <p class="card-label">Arabic Text Input</p>
+            <textarea class="glass-textarea" id="tts-input" placeholder="اكتب النص هنا للتحويل إلى صوت عربي طبيعي وذكي..." dir="rtl" lang="ar" aria-label="Arabic text to synthesize"></textarea>
+            <div style="display:flex;justify-content:space-between;margin-top:0.4rem">
+              <span style="font-size:0.78rem;color:var(--text-muted)" id="char-count">0 / 2000 chars</span>
+              <button style="font-size:0.78rem;color:var(--neon-cyan);background:none;border:none;cursor:pointer" onclick="fillSampleText()" aria-label="Insert sample Arabic text">Insert sample text</button>
+            </div>
+
+            <div class="speed-row">
+              <label>Speed</label>
+              <input type="range" class="glass-range" min="50" max="200" value="100" id="speed-range" oninput="document.getElementById('speed-val').textContent=this.value+'%'" aria-label="Speech speed control">
+              <span class="speed-val" id="speed-val">100%</span>
+            </div>
+          </div>
+
+          <div>
+            <p class="card-label">Arabic Dialect</p>
+            <div class="dialect-grid" role="group" aria-label="Select Arabic dialect">
+              <button class="dialect-btn selected" onclick="selectDialect(this)" aria-pressed="true">MSA / فصحى</button>
+              <button class="dialect-btn" onclick="selectDialect(this)" aria-pressed="false">Egyptian / مصري</button>
+              <button class="dialect-btn" onclick="selectDialect(this)" aria-pressed="false">Gulf / خليجي</button>
+              <button class="dialect-btn" onclick="selectDialect(this)" aria-pressed="false">Levantine / شامي</button>
+              <button class="dialect-btn" onclick="selectDialect(this)" aria-pressed="false">Moroccan / مغربي</button>
+              <button class="dialect-btn" onclick="selectDialect(this)" aria-pressed="false">Iraqi / عراقي</button>
+            </div>
+
+            <div style="margin-top:1rem">
+              <p class="card-label">Voice Gender</p>
+              <div style="display:flex;gap:0.6rem">
+                <button class="dialect-btn selected" style="flex:1" onclick="this.parentNode.querySelectorAll('.dialect-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')">Male</button>
+                <button class="dialect-btn" style="flex:1" onclick="this.parentNode.querySelectorAll('.dialect-btn').forEach(b=>b.classList.remove('selected'));this.classList.add('selected')">Female</button>
+              </div>
+            </div>
+
+            <div style="margin-top:1rem;padding:0.75rem 1rem;background:rgba(0,229,255,0.05);border:1px solid rgba(0,229,255,0.15);border-radius:10px">
+              <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.5rem">Emotional Tone</p>
+              <select class="glass-select" aria-label="Emotional tone for speech">
+                <option>Neutral</option>
+                <option>Professional</option>
+                <option>Warm & Friendly</option>
+                <option>Excited</option>
+                <option>Calm & Soothing</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button class="process-btn" onclick="runProcess('tts')">
+          ✦ Generate Arabic Voice
+        </button>
+
+        <div class="progress-section" id="tts-progress" aria-live="polite">
+          <div class="progress-label"><span id="tts-progress-label">Processing text...</span><span id="tts-pct">0%</span></div>
+          <div class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-fill" id="tts-bar"></div>
+          </div>
+        </div>
+
+        <div class="audio-result" id="tts-result" aria-label="Generated speech audio">
+          <div class="audio-result-label">Output · Egyptian Arabic TTS</div>
+          <div class="waveform-player" id="t-waveform" aria-hidden="true"></div>
+          <div class="player-controls">
+            <button class="play-btn" onclick="togglePlay('t')" aria-label="Play generated speech">
+              <svg id="t-play-icon" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>
+            </button>
+            <span class="time-label" id="t-time">0:00 / 0:18</span>
+            <button class="download-btn" aria-label="Download generated speech">↓ Download MP3</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB 3: ENHANCE ── -->
+      <div class="tab-panel" id="tab-enhance" role="tabpanel">
+        <div class="enhance-grid">
+          <div>
+            <p class="card-label">Upload Noisy Audio</p>
+            <div class="upload-zone" onclick="simulateEnhance()" role="button" tabindex="0" aria-label="Upload audio file for enhancement">
+              <div class="upload-icon" aria-hidden="true">🔊</div>
+              <p><strong>Drop your audio here</strong><br><span style="font-size:0.78rem">Powered by DeepFilterNet v3 · 48kHz output</span></p>
+            </div>
+
+            <div class="noise-meter" style="margin-top:1.25rem">
+              <div class="noise-label-row">
+                <span>Detected Noise Level</span>
+                <span id="noise-pct-label" style="color:var(--neon-rose)">72%</span>
+              </div>
+              <div class="noise-track" role="meter" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100" aria-label="Noise level">
+                <div class="noise-fill" id="noise-fill" style="width:72%"></div>
+              </div>
+            </div>
+
+            <div style="margin-top:1rem">
+              <p class="card-label">Enhancement Mode</p>
+              <select class="glass-select" aria-label="Enhancement mode">
+                <option>Pro Studio — Full Spectrum Denoise</option>
+                <option>Vocal Clarity — Speech Focus</option>
+                <option>Broadcast Clean — Air & AC Removal</option>
+                <option>Podcast Mode — Room Reverb Fix</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <p class="card-label">Before / After Analysis</p>
+            <div class="glass-card" style="height:160px;display:flex;align-items:center;justify-content:center;border-style:dashed" aria-label="Spectrogram visualization placeholder">
+              <div style="text-align:center;color:var(--text-muted)">
+                <div style="font-size:2rem;margin-bottom:0.5rem" aria-hidden="true">📊</div>
+                <div style="font-size:0.85rem">Spectrogram appears after upload</div>
+              </div>
+            </div>
+
+            <div class="quality-score" style="margin-top:1rem">
+              <div class="score-ring" style="--pct:85%" role="img" aria-label="Quality score: 85">
+                <span class="score-val">85</span>
+              </div>
+              <div class="score-info">
+                <strong>Predicted Quality Score</strong>
+                <span>Based on audio signature analysis</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button class="process-btn" onclick="runProcess('enhance')">
+          ✦ Clean Audio with AI
+        </button>
+
+        <div class="progress-section" id="enhance-progress" aria-live="polite">
+          <div class="progress-label"><span id="enhance-progress-label">Running DeepFilterNet...</span><span id="enhance-pct">0%</span></div>
+          <div class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-fill" id="enhance-bar"></div>
+          </div>
+        </div>
+
+        <div class="audio-result" id="enhance-result" aria-label="Enhanced audio result">
+          <div class="audio-result-label">Output · Studio Clean · SNR +28dB</div>
+          <div class="waveform-player" id="e-waveform" aria-hidden="true"></div>
+          <div class="player-controls">
+            <button class="play-btn" onclick="togglePlay('e')" aria-label="Play enhanced audio">
+              <svg id="e-play-icon" viewBox="0 0 24 24" aria-hidden="true"><polygon points="5,3 19,12 5,21"/></svg>
+            </button>
+            <span class="time-label" id="e-time">0:00 / 1:24</span>
+            <button class="download-btn" aria-label="Download enhanced audio">↓ Download WAV 48kHz</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.dashboard-inner -->
+  </div><!-- /.dashboard-wrapper -->
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SECTION 3 — FEATURES
+═════════════════════════════════════════════ -->
+<section id="features" aria-labelledby="features-title">
+  <div class="features-header reveal">
+    <span class="section-label">Why Kero AI Voice</span>
+    <h2 class="section-title" id="features-title">Built for Arabic.<br>Built for Creators.</h2>
+    <p class="section-sub">Everything you need to produce professional-grade Arabic audio — no studio required.</p>
+  </div>
+
+  <div class="features-grid">
+
+    <div class="feature-card reveal"
+         style="--card-accent-line: linear-gradient(90deg, transparent, rgba(162,89,255,0.6), transparent)">
+      <div class="feature-icon-wrap" aria-hidden="true"
+           style="--icon-bg:rgba(162,89,255,0.15);--icon-border:rgba(162,89,255,0.25)">🗣</div>
+      <h3>Ultra-Realistic Arabic AI Voices</h3>
+      <p>14+ authentic Arabic voice profiles trained on native speakers — from deep broadcast baritones to warm feminine narrators, each with regional nuance intact.</p>
+      <span class="feature-tag" style="--tag-bg:rgba(162,89,255,0.12);--tag-border:rgba(162,89,255,0.25);--tag-color:#c49fff">14 Dialects</span>
+    </div>
+
+    <div class="feature-card reveal reveal-2"
+         style="--card-accent-line: linear-gradient(90deg, transparent, rgba(0,229,255,0.5), transparent)">
+      <div class="feature-icon-wrap" aria-hidden="true"
+           style="--icon-bg:rgba(0,229,255,0.12);--icon-border:rgba(0,229,255,0.25)">⚡</div>
+      <h3>Instant 2-Second Processing</h3>
+      <p>Kero AI Voice's edge-optimized inference pipeline delivers studio results in under 2 seconds. No waiting, no queues — your audio, transformed in real time.</p>
+      <span class="feature-tag" style="--tag-bg:rgba(0,229,255,0.1);--tag-border:rgba(0,229,255,0.25);--tag-color:var(--neon-cyan)">&lt; 2s average</span>
+    </div>
+
+    <div class="feature-card reveal reveal-3"
+         style="--card-accent-line: linear-gradient(90deg, transparent, rgba(255,77,141,0.5), transparent)">
+      <div class="feature-icon-wrap" aria-hidden="true"
+           style="--icon-bg:rgba(255,77,141,0.12);--icon-border:rgba(255,77,141,0.25)">🔇</div>
+      <h3>Pro Studio Noise Isolation</h3>
+      <p>Powered by DeepFilterNet v3, our denoising engine removes background noise, AC hum, keyboard clicks, and room reverb with surgical precision.</p>
+      <span class="feature-tag" style="--tag-bg:rgba(255,77,141,0.1);--tag-border:rgba(255,77,141,0.25);--tag-color:#ff8db8">+28dB SNR Improvement</span>
+    </div>
+
+    <div class="feature-card reveal reveal-4"
+         style="--card-accent-line: linear-gradient(90deg, transparent, rgba(0,229,255,0.5), transparent)">
+      <div class="feature-icon-wrap" aria-hidden="true"
+           style="--icon-bg:rgba(0,229,255,0.1);--icon-border:rgba(0,229,255,0.2)">🎚</div>
+      <h3>Simple One-Click Interface</h3>
+      <p>No audio engineering degree required. Upload, configure, and export — three steps, one glass dashboard. Designed for creators, not audio technicians.</p>
+      <span class="feature-tag" style="--tag-bg:rgba(0,229,255,0.08);--tag-border:rgba(0,229,255,0.2);--tag-color:var(--neon-cyan)">100% Free</span>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════════
+     SECTION 4 — CONTACT & FOOTER
+═════════════════════════════════════════════ -->
+<section id="contact" class="footer-section" aria-labelledby="contact-title">
+  <div class="footer-grid reveal">
+
+    <div class="contact-form-card" role="form" aria-labelledby="contact-title">
+      <span class="section-label">Contact</span>
+      <h2 class="section-title" id="contact-title" style="font-size:1.6rem;margin-bottom:0.3rem">Send Feedback</h2>
+      <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:1.5rem">Feature requests, bug reports, or just to say hi.</p>
+
+      <div class="form-row">
+        <label for="cf-name">Name</label>
+        <input class="glass-input" type="text" id="cf-name" placeholder="Your name" autocomplete="name">
+      </div>
+      <div class="form-row">
+        <label for="cf-email">Email</label>
+        <input class="glass-input" type="email" id="cf-email" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="form-row">
+        <label for="cf-msg">Message</label>
+        <textarea class="glass-textarea" id="cf-msg" placeholder="Tell us what's on your mind..." style="min-height:90px" aria-label="Your message"></textarea>
+      </div>
+      <button class="process-btn" style="margin-top:0" onclick="submitContact(this)" aria-label="Send feedback">Send Message ✦</button>
+    </div>
+
+    <div class="footer-info">
+      <div class="footer-logo" aria-label="Kero AI Voice logo">
+        <div class="logo-icon" aria-hidden="true">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="7" width="2" height="6" rx="1" fill="white" opacity="0.9"/>
+            <rect x="6" y="4" width="2" height="12" rx="1" fill="white" opacity="0.9"/>
+            <rect x="10" y="2" width="2" height="16" rx="1" fill="white" opacity="0.9"/>
+            <rect x="14" y="5" width="2" height="10" rx="1" fill="white" opacity="0.9"/>
+            <rect x="18" y="8" width="2" height="4" rx="1" fill="white" opacity="0.9"/>
+          </svg>
+        </div>
+        Kero <span class="logo-dot">AI Voice</span>
+      </div>
+      <p class="footer-desc">The most advanced AI-powered Arabic voice platform. Built for content creators, voiceover artists, and anyone who wants studio-quality Arabic audio.</p>
+
+      <div class="social-links" aria-label="Social media links">
+        <a class="social-btn" href="#" aria-label="Twitter">𝕏</a>
+        <a class="social-btn" href="#" aria-label="LinkedIn" style="font-size:0.9rem;font-weight:700">in</a>
+        <a class="social-btn" href="#" aria-label="GitHub" style="font-size:1rem">⌨</a>
+        <a class="social-btn" href="#" aria-label="Discord" style="font-size:0.85rem;font-weight:700">DC</a>
+      </div>
+
+      <div style="margin-top:2rem;padding:1.25rem;background:rgba(162,89,255,0.08);border:1px solid rgba(162,89,255,0.2);border-radius:14px">
+        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6">
+          <strong style="color:#c49fff;font-weight:500">Tech Stack</strong><br>
+          React + Tailwind CSS · FastAPI (Python) · DeepFilterNet v3 · Arabic TTS Models · WhisperAL
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="footer-bottom" role="contentinfo">
+    <p>© 2025 Kero AI Voice. Built with AI, for Arabic. All rights reserved.</p>
+    <nav class="footer-links" aria-label="Legal links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Use</a>
+      <a href="#">API Docs</a>
+    </nav>
+  </div>
+</footer>
+
+</main>
+
+<!-- ── LOGIN MODAL ── -->
+<div class="modal-overlay" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box glass-strong">
+    <button class="modal-close" onclick="closeModal()" aria-label="Close modal">✕</button>
+    <h2 class="modal-title" id="modal-title">Welcome to Kero AI Voice</h2>
+    <p class="modal-sub">Create your free account or log in to continue.</p>
+
+    <button class="google-btn" aria-label="Continue with Google">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
+        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z"/>
+        <path fill="#FBBC05" d="M3.964 10.706A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/>
+        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z"/>
+      </svg>
+      Continue with Google
+    </button>
+
+    <div class="divider-row">
+      <span class="divider-line" aria-hidden="true"></span>
+      <span class="divider-text">or use email</span>
+      <span class="divider-line" aria-hidden="true"></span>
+    </div>
+
+    <div class="modal-tabs" role="tablist">
+      <button class="modal-tab active" role="tab" aria-selected="true" onclick="switchModalTab('login',this)">Log In</button>
+      <button class="modal-tab" role="tab" aria-selected="false" onclick="switchModalTab('signup',this)">Sign Up</button>
+    </div>
+
+    <div id="modal-login">
+      <div class="form-row"><label for="m-email">Email</label><input class="glass-input" id="m-email" type="email" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="form-row"><label for="m-pass">Password</label><input class="glass-input" id="m-pass" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+    </div>
+    <div id="modal-signup" style="display:none">
+      <div class="form-row"><label for="m-name">Full Name</label><input class="glass-input" id="m-name" type="text" placeholder="Your name" autocomplete="name"></div>
+      <div class="form-row"><label for="m-email2">Email</label><input class="glass-input" id="m-email2" type="email" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="form-row"><label for="m-pass2">Password</label><input class="glass-input" id="m-pass2" type="password" placeholder="Create a password" autocomplete="new-password"></div>
+    </div>
+
+    <button class="modal-submit" id="modal-submit-btn" aria-label="Submit login or sign up">Log In to Kero AI Voice</button>
+    <p style="font-size:0.75rem;color:var(--text-muted);text-align:center;margin-top:0.75rem">100% free · No credit card required</p>
+  </div>
+</div>
+
+<script>
+// ── HERO WAVEFORM ──
+(function() {
+  const container = document.getElementById('hero-wave');
+  const bars = 80;
+  const heights = [8,14,22,32,46,58,68,75,80,82,78,70,60,48,36,24,15,10,
+                   12,20,30,44,56,66,74,79,81,77,68,55,42,29,18,11,9,
+                   13,21,33,47,59,69,76,80,82,78,70,60,47,35,22,14,10,
+                   8,12,20,31,45,57,67,74,80,82,77,67,54,40,27,16,10,9,
+                   11,19,30,44,56,67,75,80,82];
+  for (let i = 0; i < bars; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'wave-bar';
+    const h = heights[i % heights.length] || 20;
+    bar.style.setProperty('--h', h + 'px');
+    bar.style.setProperty('--dur', (0.8 + Math.random() * 0.8) + 's');
+    bar.style.setProperty('--delay', (Math.random() * -1.5) + 's');
+    container.appendChild(bar);
+  }
+})();
+
+// ── MINI WAVEFORM PLAYERS ──
+function buildWaveform(containerId, count) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  for (let i = 0; i < count; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'waveform-mini-bar';
+    bar.style.height = (8 + Math.random() * 32) + 'px';
+    c.appendChild(bar);
+  }
+}
+buildWaveform('v-waveform', 60);
+buildWaveform('t-waveform', 60);
+buildWaveform('e-waveform', 60);
+
+// ── TAB SWITCHING ──
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+// ── MIC TOGGLE ──
+let recording = false;
+function toggleMic() {
+  recording = !recording;
+  const btn = document.getElementById('mic-btn');
+  const lbl = document.getElementById('mic-label');
+  btn.classList.toggle('recording', recording);
+  lbl.textContent = recording ? '⏹ Stop Recording' : 'Record with Mic';
+}
+
+// ── VOICE PILLS ──
+function selectPill(el) {
+  el.closest('.voice-pills').querySelectorAll('.voice-pill').forEach(p => {
+    p.classList.remove('selected'); p.setAttribute('aria-pressed','false');
+  });
+  el.classList.add('selected'); el.setAttribute('aria-pressed','true');
+}
+
+// ── DIALECT BTNS ──
+function selectDialect(el) {
+  el.closest('.dialect-grid').querySelectorAll('.dialect-btn').forEach(b => {
+    b.classList.remove('selected'); b.setAttribute('aria-pressed','false');
+  });
+  el.classList.add('selected'); el.setAttribute('aria-pressed','true');
+}
+
+// ── NOISE TOGGLE ──
+function toggleNoise(cb) {
+  // visual feedback handled by CSS
+}
+
+// ── PROCESS SIMULATION ──
+function runProcess(type) {
+  const progressEl = document.getElementById(type + '-progress');
+  const barEl = document.getElementById(type + '-bar');
+  const pctEl = document.getElementById(type + '-pct');
+  const labelEl = document.getElementById(type + '-progress-label');
+  const resultEl = document.getElementById(type + '-result');
+
+  progressEl.classList.add('visible');
+  if (resultEl) resultEl.classList.remove('visible');
+
+  const steps = {
+    voice: [
+      {at:15, label:'Analyzing audio spectrum...', chips:['s-denoise']},
+      {at:40, label:'Applying noise cancellation...', chips:['s-clone']},
+      {at:70, label:'Cloning Arabic voice profile...', chips:['s-render']},
+      {at:90, label:'Rendering final output...', chips:['s-export']},
+    ],
+    tts: [{at:30,label:'Tokenizing Arabic text...'},{at:65,label:'Synthesizing voice...'},{at:90,label:'Post-processing audio...'}],
+    enhance: [{at:25,label:'Running DeepFilterNet...'},{at:55,label:'Removing noise layers...'},{at:85,label:'Mastering output...'}]
+  };
+
+  let pct = 0;
+  const interval = setInterval(() => {
+    pct = Math.min(pct + (Math.random() * 3 + 1), 100);
+    barEl.style.width = pct + '%';
+    pctEl.textContent = Math.round(pct) + '%';
+
+    if (type === 'voice' && steps.voice) {
+      steps.voice.forEach(s => {
+        if (pct >= s.at && labelEl) labelEl.textContent = s.label;
+        if (s.chips) {
+          s.chips.forEach(cid => {
+            if (pct >= s.at) {
+              const c = document.getElementById(cid);
+              if (c) { c.classList.remove('active'); c.classList.add('done'); }
+            }
+          });
+        }
+      });
+    } else if (steps[type]) {
+      steps[type].forEach(s => { if (pct >= s.at && labelEl) labelEl.textContent = s.label; });
+    }
+
+    if (pct >= 100) {
+      clearInterval(interval);
+      pctEl.textContent = '100%';
+      if (labelEl) labelEl.textContent = '✓ Processing complete!';
+      setTimeout(() => {
+        if (resultEl) resultEl.classList.add('visible');
+      }, 400);
+    }
+  }, 60);
+}
+
+// ── SIMULATE UPLOAD ──
+function simulateUpload() {
+  // visual feedback — in real app triggers file picker
+  const zone = event.currentTarget;
+  zone.style.borderColor = 'rgba(162,89,255,0.7)';
+  zone.style.background = 'rgba(162,89,255,0.1)';
+  setTimeout(() => {
+    zone.style.borderColor = '';
+    zone.style.background = '';
+    zone.querySelector('p').innerHTML = '<strong style="color:#00e5ff">audio_sample.mp3</strong> ready to process<br><span style="font-size:0.78rem">2.4 MB · 0:42 duration</span>';
+  }, 600);
+}
+
+function simulateEnhance() {
+  simulateUpload();
+  setTimeout(() => {
+    const fill = document.getElementById('noise-fill');
+    const lbl = document.getElementById('noise-pct-label');
+    if (fill) { fill.style.width = '72%'; }
+    if (lbl) lbl.textContent = '72%';
+  }, 700);
+}
+
+// ── TTS CHAR COUNT ──
+const ttsInput = document.getElementById('tts-input');
+if (ttsInput) {
+  ttsInput.addEventListener('input', () => {
+    const n = ttsInput.value.length;
+    const el = document.getElementById('char-count');
+    if (el) el.textContent = n + ' / 2000 chars';
+  });
+}
+
+function fillSampleText() {
+  const el = document.getElementById('tts-input');
+  if (el) {
+    el.value = 'أهلاً وسهلاً بكم في منصة كيرو للذكاء الاصطناعي، المنصة الرائدة في معالجة الصوت العربي بالذكاء الاصطناعي. نقدم لكم أجود الأصوات العربية الطبيعية بمختلف اللهجات واللكنات.';
+    el.dispatchEvent(new Event('input'));
+  }
+}
+
+// ── AUDIO PLAYER SIMULATION ──
+const playerState = { v: false, t: false, e: false };
+function togglePlay(id) {
+  playerState[id] = !playerState[id];
+  const icon = document.getElementById(id + '-play-icon');
+  if (playerState[id]) {
+    icon.innerHTML = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+  } else {
+    icon.innerHTML = '<polygon points="5,3 19,12 5,21"/>';
+  }
+}
+
+// ── CONTACT FORM ──
+function submitContact(btn) {
+  const name = document.getElementById('cf-name').value.trim();
+  const email = document.getElementById('cf-email').value.trim();
+  if (!name || !email) { btn.textContent = '⚠ Please fill in all fields'; return; }
+  btn.textContent = '⏳ Sending...';
+  setTimeout(() => { btn.textContent = '✓ Message sent! Thank you.'; }, 1200);
+}
+
+// ── MODAL ──
+function openModal() { document.getElementById('modal').classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeModal() { document.getElementById('modal').classList.remove('open'); document.body.style.overflow = ''; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function switchModalTab(tab, btn) {
+  document.querySelectorAll('.modal-tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+  btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+  document.getElementById('modal-login').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('modal-signup').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('modal-submit-btn').textContent = tab === 'login' ? 'Log In to Kero AI Voice' : 'Create Free Account';
+}
+
+// ── SCROLL REVEAL ──
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); observer.unobserve(e.target); } });
+}, { threshold: 0.12 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
